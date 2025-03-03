@@ -6,6 +6,7 @@ use App\Models\Berita;
 use App\Models\Karyawan;
 use App\Models\Konfigurasiberita;
 use App\Models\Satker;
+use App\Models\Tbldraft;
 use http\Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -487,7 +488,7 @@ class DataraperkadaController extends Controller
                 return redirect()->route('getraperkada', $kode_pereseanuser)->with(['warning' => 'Data Draft Raperkada Gagal Diupdate, error :' . $e]);
             }
         } else if ($simpan == "n") {
-            return redirect()->route('getraperkada', $kode_pereseanuser)->with(['warning' => 'Gagal! Nama Draft Permohonan :'.$nama_draft_raperkada ." sudah terdaftar sebelumnya"]);
+            return redirect()->route('getraperkada', $kode_pereseanuser)->with(['warning' => 'Gagal! Nama Draft Permohonan :' . $nama_draft_raperkada . " sudah terdaftar sebelumnya"]);
         }
 
     }
@@ -642,21 +643,40 @@ class DataraperkadaController extends Controller
 
     public function getraperkada($kode_pereseanuser, Request $request)
     {
-        //return $kode_pereseanuser;
-        //return "data berita satker broyyy johan";
-        /*penggunaan define gate*/
-        //$this->authorize('admin');
-        //return "hey raperkada";
         $dtPereseanuserCek = DB::table('tbl_user')->get();
 
+        //$query_draft = Tbldraft::all();
         $query_draft = DB::table('tbl_draft')
             ->where('kode_pereseanuser', $kode_pereseanuser)
             ->where('jenis_dokumen', "raperkada");
-        //$draft_raperkada = $query_draft->paginate(2);
+
+        //echo $request->dari."<br>";
+        //echo $request->sampai."<br>";
+        //die;
+        if (!empty($request->dari) && !empty($request->sampai)) {
+            if ($request->dari == $request->sampai) {
+                //echo "sama dari = sampai";
+                $query_draft->whereDate('tgl_input', $request->dari);
+            } else if ($request->dari != $request->sampai) {
+                //echo "sama dari != sampai";
+                $query_draft->whereBetween('tgl_input', [$request->dari, $request->sampai]);
+            }
+        }
+        //die;
+
+        if (!empty($request->nama_raperkada)) {
+            $query_draft->where('nama_draft_permohonan', 'like', '%' . $request->nama_raperkada . '%');
+        }
+
+        if (!empty($request->status_dokumen)) {
+            $query_draft->where('status', $request->status_dokumen);
+        }
+
+        $query_draft->orderBy("tgl_input", "desc");
         $draft_raperkada = $query_draft->paginate(10);
+
         $pereseanuser = DB::table('tbl_user')->where('kode_pereseanuser', $kode_pereseanuser)->first();
         $fullname_bykodepereseanuser = $pereseanuser->nama_lengkap;
-        //echo "<pre>"; print_r($pereseanuser); die;
         if (auth()->user()->level == 'superadmin') {
             //return auth()->user()->level;
             //echo $kode_pereseanuser; die;

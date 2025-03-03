@@ -176,10 +176,9 @@
                             d="M5 11h1v2h-1z"/><path d="M10 11l0 2"/><path d="M14 11h1v2h-1z"/><path
                             d="M19 11l0 2"/></svg>
             </span>
-                                                    <select name="kode_divisi_pilihan" id="kode_divisi_pilihan"
+                                                    <select name="status_dokumen" id="status_dokumen"
                                                             class="{{--id_konfig_satker--}} form-control">
                                                         <option value="">-Pilih Status-</option>
-                                                        '','','','','',''
                                                         <option value="belum_diproses">Belum Diproses</option>
                                                         <option value="perbaikan">Perbaikan Dokumen</option>
                                                         <option value="sedang_diproses">On Proccess</option>
